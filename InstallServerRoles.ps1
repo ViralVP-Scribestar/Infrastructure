@@ -17,7 +17,7 @@ if ((Test-Admin) -eq $false)  {
 exit
 }
 
-{Set-ExecutionPolicy RemoteSigned}
+#{Set-ExecutionPolicy RemoteSigned}
 
 Import-Module Servermanager
 
