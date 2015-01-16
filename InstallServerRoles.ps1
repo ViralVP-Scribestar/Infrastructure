@@ -16,11 +16,22 @@ if ((Test-Admin) -eq $false)  {
 
 exit
 }
-
 #{Set-ExecutionPolicy RemoteSigned}
-
+$Role = Read-Host "Please Enter: Web, App, SQL, etc."
 Import-Module Servermanager
 
 Get-Command -Module Servermanager
+Write-Host "$Role"
 
-Import-Clixml C:\RnF.xml | Add-WindowsFeature
+if ($Role -like "Web")  {
+Write-Host "Installing Web Features and Roles"
+#Import-Clixml C:\RnF.xml | Add-WindowsFeature
+    } 
+    ElseIf ($Role -like "App"){
+    Write-Host "Installing App Features and Roles"
+#Import-Clixml C:\RnF.xml | Add-WindowsFeature
+    }
+    else {
+Write-Host "Please Enter A Valid Server Role!"
+}
+
