@@ -16,22 +16,21 @@ if ((Test-Admin) -eq $false)  {
 
 exit
 }
-#{Set-ExecutionPolicy RemoteSigned}
+
+
 $Role = Read-Host "Please Enter: Web, App, SQL, etc."
-Import-Module Servermanager
+$fileName = "\\NAS\Shared Resource\Infrastructure\Operations\Systems\Scripts\PowerShell\RolesXML\{0}_RnF.xml" -f $Role
 
-Get-Command -Module Servermanager
-Write-Host "$Role"
+If (Test-Path $fileName) {
+    Import-Module Servermanager
+    Get-Command -Module Servermanager
 
-if ($Role -like "Web")  {
-Write-Host "Installing Web Features and Roles"
-#Import-Clixml C:\RnF.xml | Add-WindowsFeature
-    } 
-    ElseIf ($Role -like "App"){
-    Write-Host "Installing App Features and Roles"
-#Import-Clixml C:\RnF.xml | Add-WindowsFeature
-    }
-    else {
-Write-Host "Please Enter A Valid Server Role!"
+    Write-Host -fore Green "Installing $Role Features and Roles"
+    #Import-Clixml $fileName | Add-WindowsFeature
 }
-
+    Else {
+        Write-Host -fore Red "Please Enter A Valid Server Role!"
+        Write-Host -fore Red "Web, App, SQL, RabbitMQ, NEO, or Raven!"
+        Write-Host -fore Red "$fileName does NOT exist!"
+        break;
+    }
