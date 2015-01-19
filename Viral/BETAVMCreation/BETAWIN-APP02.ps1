@@ -1,4 +1,5 @@
-﻿Connect-VIServer -Server VCS-PROD
+﻿Add-PSSnapin VMware.VimAutomation.Core
+Connect-VIServer -Server VCS-PROD -User "SCRIBESTAR\SVCVMADMIN" -Password ":l07xF)x>?44q}ucR-Vs6"
 $smtpserver = "smtp-relay.gmail.com"
 $ErrorActionPreference = "stop"
 $EmailTo = "Scribestar-Infrastructure@scribestar.com"
