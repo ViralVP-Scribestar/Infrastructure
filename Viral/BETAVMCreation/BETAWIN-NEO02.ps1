@@ -139,43 +139,6 @@ $hostpassword = "scribestar"
 $VMBETANEO02 = @'
 $Computerinfo = Get-WmiObject -Class Win32_ComputerSystem
 $Computerinfo.Rename("BETAWIN-NEO02")
-'@
-Invoke-VMScript -VM $VM -ScriptText $VMBETANEO02 -ScriptType Powershell -GuestUser $guestuser -GuestPassword $guestpassword -HostUser $hostuser -HostPassword $hostpassword
-
-Write-Host "Rebooting VM's" -BackgroundColor Cyan -ForegroundColor DarkMagenta
-
-Restart-VMGuest -VM $VM -Confirm:$false
-Start-Sleep -Seconds 120
-
-$VMBETANEO02 = @'
-$IP="10.1.0.35"
-$Prefix = "24"
-$Gateway = "10.1.0.1"
-$DNS1 = "10.1.2.34"
-$DNS2 = "10.1.2.35"
-$Domain = SCRIBESTAR.INTERNAL
-$OUPath = "OU=BETA,OU=Servers,OU=United Kingdom,OU=Resource,DC=SCRIBESTAR,DC=INTERNAL"
-$domainuser = "SVCJOINDOMAIN"
-$domainpassword = "7UUBDUNQHtJzVxtwtPN01" | ConvertTo-SecureString -AsPlainText -Force
-New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress $IP -PrefixLength $Prefix -DefaultGateway $Gateway
-Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses ($DNS1,$DNS2)
-$cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $domainuser,$domainpassword
-Start-Sleep -Seconds 10
-Add-Computer -DomainName $Domain -OUPath $OUPath -Credential $cred
-
-'@
-Invoke-VMScript -VM $VM -ScriptText $VMBETANEO02 -ScriptType Powershell -GuestUser $guestuser -GuestPassword $guestpassword -HostUser $hostuser -HostPassword $hostpassword
-Restart-VMGuest -VM $VM -Confirm:$false
-Start-Sleep -Seconds 300
-
-& ipconfig "/flushdns"
-
-Write-Host "Configuring HardDisk" -ForegroundColor Green -BackgroundColor Red
-
-$server = Get-ADComputer -Identity $VM -Properties *
-
-Invoke-Command -ComputerName $server.Name -ScriptBlock {
-                                
                                 if((Get-WmiObject Win32_cdromdrive).drive -eq "D:") 
                                 {
                                     (Get-WmiObject Win32_cdromdrive).drive | ForEach-Object {$a = mountvol $_ /l;mountvol $_ /d; $a = $a.Trim();mountvol R: $a}
@@ -204,8 +167,34 @@ Invoke-Command -ComputerName $server.Name -ScriptBlock {
                                                         Format-Volume -DriveLetter D -FileSystem NTFS -Confirm:$false
 
                                                         }
-                                                        
-                                                        }
+'@
+Invoke-VMScript -VM $VM -ScriptText $VMBETANEO02 -ScriptType Powershell -GuestUser $guestuser -GuestPassword $guestpassword -HostUser $hostuser -HostPassword $hostpassword
+
+Write-Host "Rebooting VM's" -BackgroundColor Cyan -ForegroundColor DarkMagenta
+
+Restart-VMGuest -VM $VM -Confirm:$false
+Start-Sleep -Seconds 120
+
+$VMBETANEO02 = @'
+$IP="10.1.0.35"
+$Prefix = "24"
+$Gateway = "10.1.0.1"
+$DNS1 = "10.1.2.34"
+$DNS2 = "10.1.2.35"
+$Domain = "SCRIBESTAR.INTERNAL"
+$OUPath = "OU=BETA,OU=Servers,OU=United Kingdom,OU=Resource,DC=SCRIBESTAR,DC=INTERNAL"
+$domainuser = "SVCJOINDOMAIN"
+$domainpassword = "7UUBDUNQHtJzVxtwtPN01" | ConvertTo-SecureString -AsPlainText -Force
+New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress $IP -PrefixLength $Prefix -DefaultGateway $Gateway
+Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses ($DNS1,$DNS2)
+$cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $domainuser,$domainpassword
+Start-Sleep -Seconds 10
+Add-Computer -DomainName $Domain -OUPath $OUPath -Credential $cred
+
+'@
+Invoke-VMScript -VM $VM -ScriptText $VMBETANEO02 -ScriptType Powershell -GuestUser $guestuser -GuestPassword $guestpassword -HostUser $hostuser -HostPassword $hostpassword
+Restart-VMGuest -VM $VM -Confirm:$false
+
 
                               
                               }
