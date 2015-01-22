@@ -125,7 +125,6 @@ Write-Host "Creating VM's" -ForegroundColor Blue -BackgroundColor Yellow
 New-ScribestarVM -Name $VM -ResourcePool $Resource -Datastore $Datastore -Template $Template -Location $Location
 Start-Sleep -Seconds 30
 Set-ScribestarNetwork -VMName $VM -Network $Network
-New-ScribestarHardDisk -Name $VM -CapacityGB $CapacityGB -Thin
 Start-VM -VM $VM
 Start-Sleep -Seconds 60
 
