@@ -1,0 +1,2 @@
+Resource|Folder|CapacityGB|Location|Datastore|Template|OUPath
+Resource|BETA|10|BETA|VMS-DATASTORE|WIN2012R2-TEMPLATE|OU=BETA,OU=Servers,OU=United Kingdom,OU=Resource,DC=SCRIBESTAR,DC=INTERNAL

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Scribestar-Infrastructure</id>
+    </metadata>
+    <files>
+        <file src="module\Scribestar-Functions.psm1" target="module\Scribestar-Functions.psm1" />
+        <file src="script\New-ScribestarVM.ps1" target="script\New-ScribestarVM.ps1" />
+        <file src="roles\*.csv" target="roles" />
+    </files>
+</package>
