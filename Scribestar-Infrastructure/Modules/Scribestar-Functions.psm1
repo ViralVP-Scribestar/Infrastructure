@@ -138,4 +138,4 @@ Function Send-ErrorEmail([string] $Subject, [string] $ErrorLog) {
     Send-MailMessage -From $EmailFrom -To $EmailTo -Subject $Subject -Attachments $ErrorLog -SmtpServer $SMTPServer
 }
 
-Export-ModuleMember -function New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarRole
+Export-ModuleMember -Function New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarRole

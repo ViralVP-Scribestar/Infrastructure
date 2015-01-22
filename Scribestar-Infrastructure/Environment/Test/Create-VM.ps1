@@ -41,7 +41,7 @@ if($VMExists.Name -eq $Name) {
 
     Write-Host "Rebooting VM's" -ForegroundColor Green
 
-    Restart-VMGuest -VM $Name
+    Restart-VMGuest -VM $Name -Confirm:$false
 
     Start-Sleep -Seconds 120
 
