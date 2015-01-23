@@ -4,6 +4,7 @@
         <id>Scribestar-Infrastructure</id>
         <authors>Scribestar</authors>
         <description>Scribestar-Infrastructure</description>
+        <version>0.1</version>
     </metadata>
     <files>
         <file src="Environment\**" target="Environment" />
