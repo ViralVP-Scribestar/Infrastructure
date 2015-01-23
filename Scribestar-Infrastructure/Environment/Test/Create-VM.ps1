@@ -1,10 +1,9 @@
 ﻿param([string] $Name, [string] $ServerType, [string] $IP, [string] $Gateway);
 
-try {
-	Get-PSSnapin VMware.VimAutomation.Core
-} catch {
-   Add-PSSnapin VMware.VimAutomation.Core
-}
+
+Get-PSSnapin VMware.VimAutomation.Core -ErrorAction SilentlyContinue
+
+if ($?) { Write-Host "Couldn't load Vmware Powershell snapin" -ForegroundColor Red; break }
 
 try {
 	Import-Module "..\..\Modules\Scribestar-Functions.psm1" -ErrorAction Stop
