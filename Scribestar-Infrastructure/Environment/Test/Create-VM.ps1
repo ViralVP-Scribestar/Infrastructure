@@ -10,7 +10,9 @@ $HostUser = "root"
 $HostPassword = "scribestar"
 
 Connect-VIServer -Server VCS-PROD -User "SCRIBESTAR\SVCVMADMIN" -Password ":l07xF)x>?44q}ucR-Vs6"
-$Role = Import-ScribestarRole $RoleFile
+
+
+$Role = Import-ScribestarRole $ServerType
 
 $VMExists = Get-VM -Name $Name -ErrorAction SilentlyContinue
 
