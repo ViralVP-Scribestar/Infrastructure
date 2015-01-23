@@ -46,11 +46,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Environment\Test\App.csv" />
+    <None Include="Environment\Test\Create-VM.ps1" />
     <None Include="Infrastructure.nuspec" />
     <None Include="Modules\Scribestar-Functions.psm1" />
     <None Include="README.md" />
-    <None Include="Environment\CI\Role\app.csv" />
-    <None Include="Environment\CI\New-ScribestarVM.ps1" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
