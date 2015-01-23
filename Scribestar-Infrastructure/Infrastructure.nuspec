@@ -4,8 +4,7 @@
         <id>Scribestar-Infrastructure</id>
     </metadata>
     <files>
-        <file src="module\Scribestar-Functions.psm1" target="module\Scribestar-Functions.psm1" />
-        <file src="script\New-ScribestarVM.ps1" target="script\New-ScribestarVM.ps1" />
-        <file src="roles\*.csv" target="roles" />
+        <file src="Environment\**" target="Environment" />
+        <file src="Modules\*.psm1" target="Modules" />
     </files>
 </package>
