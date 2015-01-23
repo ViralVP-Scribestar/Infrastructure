@@ -31,6 +31,7 @@ Function New-ScribestarVM([string] $Name = $null, [string] $Datastore = $null, [
     if (-not($ResourcePool)) { Write-Host "No resource pool provided"; break }
 
     try {
+        if(-not(Get-Folder $Location -ErrorAction $ErrorActionPref)){New-Folder $Location -Location VM} ##Creates the folder location within VM if it does not exist
         New-VM -Name $Name -ResourcePool $ResourcePool -Template $Template -Datastore $Datastore -Location $Location -ErrorAction $ErrorActionPref
     } catch {
         $Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewVMErrorLog -Append
