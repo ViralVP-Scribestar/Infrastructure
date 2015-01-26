@@ -1,18 +1,23 @@
 ﻿param([string] $Name, [string] $ServerType, [string] $IP, [string] $Gateway);
 
-Add-PSSnapin VMware.VimAutomation.Core -ErrorAction SilentlyContinue
-
-Import-Module "..\..\Modules\Scribestar-Functions.psm1" -ErrorAction Stop
-
 $GuestUser = "administrator"
 $GuestPassword = "G00gle1t"
 $HostUser = "root"
 $HostPassword = "scribestar"
 
+Add-PSSnapin VMware.VimAutomation.Core -ErrorAction SilentlyContinue
+
+try {
+	Remove-Module Scribestar-Functions -ErrorAction SilentlyContinue
+} catch {}
+
+Import-Module "..\..\Modules\Scribestar-Functions.psm1" -ErrorAction Stop
+
+
 Connect-VIServer -Server VCS-PROD -User "SCRIBESTAR\SVCVMADMIN" -Password ":l07xF)x>?44q}ucR-Vs6"
 
 
-$Role = Import-ScribestarRole $ServerType
+$Role = Import-ScribestarServerCSV $ServerType
 
 $VMExists = Get-VM -Name $Name -ErrorAction SilentlyContinue
 
