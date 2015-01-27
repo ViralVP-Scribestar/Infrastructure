@@ -10,18 +10,23 @@ $StartDateTime = Get-Date
 
 $NewVMErrorPath = "\\nas.scribestar.internal\Shared Resource\Infrastructure\VMware\VMCreation\NewVMErrorLogs\$Year\$Month\$Day\"
 $NewVMErrorLog = "$NewVMErrorPath\NewVMError-$Hour.$Minute.$Second.log"
+if(-not(Test-Path $NewVMErrorPath)){md $NewVMErrorPath}
 
 $NetworkLabelErrorPath = "\\nas.scribestar.internal\Shared Resource\Infrastructure\VMware\VMCreation\NetworkLabelErrorLogs\$Year\$Month\$Day\"
 $NetworkLabelErrorLog = "$NetworkLabelErrorPath\NetworkLabelError-$Hour.$Minute.$Second.log"
+if(-not(Test-Path $NetworkLabelErrorPath)){md $NetworkLabelErrorPath}
 
 $NetworkInterfaceErrorPath = "\\nas.scribestar.internal\Shared Resource\Infrastructure\VMware\VMCreation\NetworkInterfaceErrorLogs\$Year\$Month\$Day\"
 $NetworkInterfaceErrorLog = "$NetworkInterfaceErrorPath\NetworkInterfaceError-$Hour.$Minute.$Second.log"
+if(-not(Test-Path $NetworkInterfaceErrorPath)){md $NetworkInterfaceErrorPath}
 
 $StartVMErrorPath = "\\nas.scribestar.internal\Shared Resource\Infrastructure\VMware\VMCreation\StartVMErrorLogs\$Year\$Month\$Day\"
 $StartVMErrorLog = "$StartVMErrorPath\StartVMError-$Hour.$Minute.$Second.log"
+if(-not(Test-Path $StartVMErrorPath)){md $StartVMErrorPath}
 
 $NewVMHardDiskErrorPath = "\\nas.scribestar.internal\Shared Resource\Infrastructure\VMware\VMCreation\NewVMHardDiskErrorLogs\$Year\$Month\$Day\"
 $NewVMHardDiskErrorLog = "$NewVMHardDiskErrorPath\NewVMHardDiskError-$Hour.$Minute.$Second.log"
+if(-not(Test-Path $NewVMHardDiskErrorPath)){md $NewVMHardDiskErrorPath}
 
 Function New-ScribestarVM
 {
@@ -34,8 +39,6 @@ Function New-ScribestarVM
 
 
 	try {
-		if (-Not (Get-Folder $Location -ErrorAction $ErrorActionPref)) { New-Folder $Location -Location VM }
-
 		New-VM -Name $Name -ResourcePool $ResourcePool -Template $Template -Datastore $Datastore -Location $Location -ErrorAction $ErrorActionPref
 	} catch {
 		$Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewVMErrorLog -Append
@@ -50,7 +53,7 @@ Function Set-ScribestarNetwork
 	[Parameter(Mandatory=$true)][string] $Network)
 
 	try {
-		Get-VM $VMName | GetNetworkAdapter | SetNetWorkAdapter -NetworkName $Network -Confirm:$false -ErrorAction $ErrorActionPref
+		Get-VM $VMName | Get-NetworkAdapter | Set-NetworkAdapter -NetworkName $Network -Confirm:$false -ErrorAction $ErrorActionPref
 	} catch {
 		$Network + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NetworkLabelErrorLog -Append
         $Network + "$FailedItem = $_.Exception.ItemName" | Out-File -FilePath $NetworkLabelErrorLog -Append
@@ -58,18 +61,18 @@ Function Set-ScribestarNetwork
 	}
 }
 
-Function New-ScribestarHDD
+Function New-ScribestarHardDisk
 {
 	Param([Parameter(Mandatory=$true)][string] $VMName,
-	[Parameter(Mandatory=$true)][ValidateNotNull][string] $CapacityGB,
-	[Parameter(Mandatory=$true)][switch] $Thick)
+	[Parameter(Mandatory=$true)][string] $CapacityGB,
+	[Parameter(Mandatory=$false)][switch] $Thick)
 
 	# default to thin disks
     if ($Thick) { $StorageFormat = "Thick" }
     else		{ $StorageFormat = "Thin" }
 
     try {
-        New-HardDisk -VM $Name -CapacityGB $CapacityGB -StorageFormat $StorageFormat -Persistence Persistent -ErrorAction $ErrorActionPref
+        New-HardDisk -VM $VMName -CapacityGB $CapacityGB -StorageFormat $StorageFormat -Persistence Persistent -ErrorAction $ErrorActionPref
     } catch {
         $Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewHardDiskErrorLog -Append
         $Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewHardDiskErrorLog -Append
@@ -82,18 +85,18 @@ Function Import-ScribestarServerCSV
 {
 	Param([string] $CSVFilename)
 
-	$ServerSettings = Import-Csv $CSVFilename -Delimiter "|" -ErrorAction $ErrorActionPref
+	$ServerSettings = Import-Csv $CSVFilename -ErrorAction $ErrorActionPref
 
 	return $ServerSettings
 }
 
-Function Get-ScribestarRemoteHDDSetupScript
+Function Set-ScribestarRemoteHDDSetupScript
 {
-	Param([Parameter(Mandatory=$true)][string] $VMName)
+	Param([Parameter(Mandatory=$true)][string]$Name)
 
     $ScriptText = @"
         $Computerinfo = Get-WmiObject -Class Win32_ComputerSystem
-        $Computerinfo.Rename($VMName)
+        $Computerinfo.Rename($Name)
     
         if((Get-WmiObject Win32_cdromdrive).drive -eq "D:") 
         {
@@ -124,7 +127,7 @@ Function Get-ScribestarRemoteHDDSetupScript
 }
 
 
-Function Get-ScribestarRemoteNetworkSetupScript
+Function Set-ScribestarRemoteNetworkSetupScript
 {
 	Param([Parameter(Mandatory=$true)][string] $IPAddr, [Parameter(Mandatory=$true)][string] $GatewayAddr)
 
@@ -156,4 +159,4 @@ Function Send-ErrorEmail
     Send-MailMessage -From $EmailFrom -To $EmailTo -Subject $Subject -Attachments $ErrorLog -SmtpServer $SMTPServer
 }
 
-Export-ModuleMember -Function New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarServerCSV
+Export-ModuleMember -Function New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarServerCSV, Set-ScribestarRemoteHDDSetupScript, Set-ScribestarRemoteNetworkSetupScript

@@ -1,4 +1,4 @@
-﻿param([string]$Name,[string]$ServerType,[string]$IP,[string] $Gateway);
+﻿param([string]$Name,[string]$ServerConfigFile,[string]$IP,[string] $Gateway,[string]$Network);
 
 $GuestUser = "administrator"
 $GuestPassword = "G00gle1t"
@@ -17,7 +17,7 @@ Import-Module "..\..\Modules\Scribestar-Functions.psm1" -ErrorAction Stop
 Connect-VIServer -Server VCS-PROD -User "SCRIBESTAR\SVCVMADMIN" -Password ":l07xF)x>?44q}ucR-Vs6"
 
 
-$Role = Import-ScribestarServerCSV $ServerType
+$Role = Import-ScribestarServerCSV $ServerConfigFile
 
 $VMExists = Get-VM -Name $Name -ErrorAction SilentlyContinue
 
@@ -25,32 +25,30 @@ if($VMExists.Name -eq $Name) {
     Write-Host "ERROR: $Name Already exists" -ForegroundColor Red
 } else {
     Write-Host "Creating VM $Name with role $RoleFile" -ForegroundColor Green
+    
+    if (-not(Get-Folder $Role.Folder -ErrorAction SilentlyContinue)) { New-Folder $Role.Location -Location VM }
+    Start-Sleep -Seconds 20
 
     New-ScribestarVM -Name $Name -ResourcePool $Role.Resource -Datastore $Role.Datastore -Template $Role.Template -Location $Role.Location
 
     do {
 
-           $VMCreation = Get-VM $Name -ErrorAction SilentlyContinue
-           if($VMCreation.UsedSpaceGB -eq "-1")
-           {
-            Write-Host "$Name Still In Creation Process"
+           $VMCreation = Get-VM $Name -ErrorAction Stop
+           
+           
+            Write-Host "$Name Still In Creation Process" -ForegroundColor Yellow
             Start-Sleep -Seconds 60
-            }
+            
 
             }
 
             until ($VMCreation.UsedSpaceGB -ne "-1")
-    
-
-    
-	#Write-Host "Sleeping for 30s" -ForegroundColor Green
-
-    Start-Sleep -Seconds 30
 
 	Set-ScribestarNetwork -VMName $Name -Network $Network
 
     # thin by default
-    New-ScribestarHardDisk -Name $Name -CapacityGB $Role.CapacityGB
+
+   New-ScribestarHardDisk -VMName $Name -CapacityGB $Role.CapacityGB
 
 	Write-Host "Starting VM and waiting 60s" -ForegroundColor Green
 
@@ -58,9 +56,9 @@ if($VMExists.Name -eq $Name) {
 
     Start-Sleep -Seconds 60
 
-	Write-Host "Creating HDD" -ForegroundColor Green
+	Write-Host "Configuring HardDrive" -ForegroundColor Green
 
-    $DiskSetupScript = Get-ScribestarRemoteDiskSetupScript($Name)
+    $DiskSetupScript = Set-ScribestarRemoteHDDSetupScript($Name)
 
     Invoke-VMScript -VM $Name -ScriptText $DiskSetupScript -ScriptType Powershell -GuestUser $GuestUser -GuestPassword $GuestPassword -HostUser $HostUser -HostPassword $HostPassword
 
@@ -70,7 +68,7 @@ if($VMExists.Name -eq $Name) {
 
     Start-Sleep -Seconds 120
 
-    $NetworkSetupScript = Get-ScribestarRemoteNetworkSetupScript($IP,$Gateway)
+    $NetworkSetupScript = Set-ScribestarRemoteNetworkSetupScript($IP,$Gateway)
 	
 	Write-Host "Applying network settings" -ForegroundColor Green
     
