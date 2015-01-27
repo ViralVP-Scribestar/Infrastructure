@@ -1,4 +1,4 @@
-﻿param([string] $Name, [string] $ServerType, [string] $IP, [string] $Gateway);
+﻿param([string]$Name,[string]$ServerType,[string]$IP,[string] $Gateway);
 
 $GuestUser = "administrator"
 $GuestPassword = "G00gle1t"
@@ -27,8 +27,23 @@ if($VMExists.Name -eq $Name) {
     Write-Host "Creating VM $Name with role $RoleFile" -ForegroundColor Green
 
     New-ScribestarVM -Name $Name -ResourcePool $Role.Resource -Datastore $Role.Datastore -Template $Role.Template -Location $Role.Location
+
+    do {
+
+           $VMCreation = Get-VM $Name -ErrorAction SilentlyContinue
+           if($VMCreation.UsedSpaceGB -eq "-1")
+           {
+            Write-Host "$Name Still In Creation Process"
+            Start-Sleep -Seconds 60
+            }
+
+            }
+
+            until ($VMCreation.UsedSpaceGB -ne "-1")
     
-	Write-Host "Sleeping for 30s" -ForegroundColor Green
+
+    
+	#Write-Host "Sleeping for 30s" -ForegroundColor Green
 
     Start-Sleep -Seconds 30
 
@@ -55,7 +70,7 @@ if($VMExists.Name -eq $Name) {
 
     Start-Sleep -Seconds 120
 
-    $NetworkSetupScript = Get-ScribestarRemoteNetworkSetupScript($IP, $Gateway)
+    $NetworkSetupScript = Get-ScribestarRemoteNetworkSetupScript($IP,$Gateway)
 	
 	Write-Host "Applying network settings" -ForegroundColor Green
     
