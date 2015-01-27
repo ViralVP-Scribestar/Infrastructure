@@ -7,8 +7,8 @@
     <ProjectGuid>{CDF96963-8F5A-41A9-A3FD-DD7C73D3139C}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Scribestar_Infrastructure</RootNamespace>
-    <AssemblyName>Scribestar-Infrastructure</AssemblyName>
+    <RootNamespace>Scribestar.Ops</RootNamespace>
+    <AssemblyName>Scribestar.Ops</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -46,13 +46,32 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Environment\Test\App.csv" />
-    <None Include="Environment\Test\Create-VM.ps1" />
+    <None Include="Environment\Alpha-Beta.ps1" />
+    <None Include="Environment\CI.ps1" />
+    <None Include="Environment\Data\Alpha-Beta.csv" />
+    <None Include="Environment\Data\CI.csv" />
+    <None Include="Environment\Data\Demo.csv" />
+    <None Include="Environment\Data\QA.csv" />
+    <None Include="Environment\Demo.ps1" />
+    <None Include="Environment\QA.ps1" />
+    <None Include="Environment\Roles\AppServer.ps1" />
+    <None Include="Environment\Roles\Neo4jServer.ps1" />
+    <None Include="Environment\Roles\RabbitMQServer..ps1" />
+    <None Include="Environment\Roles\RavenDBServer.ps1" />
+    <None Include="Environment\Roles\SqlServer.ps1" />
+    <None Include="Environment\Roles\WebServer.ps1" />
     <None Include="Infrastructure.nuspec" />
     <None Include="Modules\Scribestar-Functions.psm1" />
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Environment\Roles\Data\AppServer-Role.xml" />
+    <Content Include="Environment\Roles\Data\Neo4jServer-Role.xml" />
+    <Content Include="Environment\Roles\Data\RabbitMQServer-Role.xml" />
+    <Content Include="Environment\Roles\Data\RavenDbServer-Role.xml" />
+    <Content Include="Environment\Roles\Data\SqlServer-Role.xml" />
+    <Content Include="Environment\Roles\Data\WebServer-Role.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.30324.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scribestar-Infrastructure", "Scribestar-Infrastructure\Scribestar-Infrastructure.csproj", "{CDF96963-8F5A-41A9-A3FD-DD7C73D3139C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scribestar.Ops", "src\Scribestar.Ops.csproj", "{CDF96963-8F5A-41A9-A3FD-DD7C73D3139C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

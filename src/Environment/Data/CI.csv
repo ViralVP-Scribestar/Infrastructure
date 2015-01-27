@@ -1,0 +1,2 @@
+Resource,Folder,CapacityGB,Location,Datastore,Template,OUPath
+Resources,CI,10,CI,VMS-Datastore,WIN2012R2-TEMPLATE,"OU=CI,OU=Servers,OU=United Kingdom,OU=Resource,DC=SCRIBESTAR,DC=INTERNAL"

@@ -8,6 +8,6 @@
     </metadata>
     <files>
         <file src="Environment\**" target="Environment" />
-        <file src="Modules\*.psm1" target="Modules" />
+        <file src="Modules\**" target="Modules" />
     </files>
 </package>
