@@ -45,7 +45,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="Environment\Alpha-Beta.ps1" />
     <None Include="Environment\CI.ps1" />
     <None Include="Environment\Data\Alpha-Beta.csv" />
