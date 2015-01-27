@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>Scribestar-Infrastructure</id>
+        <id>Scribestar.Ops</id>
         <authors>Scribestar</authors>
-        <description>Scribestar-Infrastructure</description>
+        <description>Scribestar.Ops</description>
         <version>0.1</version>
     </metadata>
     <files>
