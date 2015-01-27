@@ -26,8 +26,11 @@ if($VMExists.Name -eq $Name) {
 } else {
     Write-Host "Creating VM $Name with role $RoleFile" -ForegroundColor Green
     
-    if (-not(Get-Folder $Role.Folder -ErrorAction SilentlyContinue)) { New-Folder $Role.Location -Location VM }
-    Start-Sleep -Seconds 20
+    if (-not(Get-Folder $Role.Folder -ErrorAction SilentlyContinue)) {
+                                                                       Write-Host "Creating VM Folder" -ForegroundColor Blue
+                                                                       New-Folder $Role.Location -Location VM
+                                                                       Start-Sleep -Seconds 20 
+                                                                       }
 
     New-ScribestarVM -Name $Name -ResourcePool $Role.Resource -Datastore $Role.Datastore -Template $Role.Template -Location $Role.Location
 

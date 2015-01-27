@@ -159,4 +159,4 @@ Function Send-ErrorEmail
     Send-MailMessage -From $EmailFrom -To $EmailTo -Subject $Subject -Attachments $ErrorLog -SmtpServer $SMTPServer
 }
 
-Export-ModuleMember -Function New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarServerCSV, Set-ScribestarRemoteHDDSetupScript, Set-ScribestarRemoteNetworkSetupScript
+Export-ModuleMember -Function Send-ErrorEmail, New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarServerCSV, Set-ScribestarRemoteHDDSetupScript, Set-ScribestarRemoteNetworkSetupScript
