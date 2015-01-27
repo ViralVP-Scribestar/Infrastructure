@@ -62,7 +62,6 @@
     <None Include="Environment\Roles\WebServer.ps1" />
     <None Include="Infrastructure.nuspec" />
     <None Include="Modules\Scribestar-Functions.psm1" />
-    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Environment\Roles\Data\AppServer-Role.xml" />
