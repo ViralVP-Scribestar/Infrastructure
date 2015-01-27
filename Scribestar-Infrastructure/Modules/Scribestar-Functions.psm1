@@ -23,43 +23,50 @@ $StartVMErrorLog = "$StartVMErrorPath\StartVMError-$Hour.$Minute.$Second.log"
 $NewVMHardDiskErrorPath = "\\nas.scribestar.internal\Shared Resource\Infrastructure\VMware\VMCreation\NewVMHardDiskErrorLogs\$Year\$Month\$Day\"
 $NewVMHardDiskErrorLog = "$NewVMHardDiskErrorPath\NewVMHardDiskError-$Hour.$Minute.$Second.log"
 
-Function New-ScribestarVM([string] $Name = $null, [string] $Datastore = $null, [string] $Template = $null, [string] $Location = $null, [string] $ResourcePool = $null) {
-    if (-not($Name)) { Write-Host "No name provided"; break }
-    if (-not($Datastore)) { Write-Host "No datastore provided"; break } 
-    if (-not($Template)) { Write-Host "No template provided"; break }
-    if (-not($Location)) { Write-Host "No location provided"; break }
-    if (-not($ResourcePool)) { Write-Host "No resource pool provided"; break }
+Function New-ScribestarVM
+{
+	Param([Parameter(Mandatory=$true)][string] $Name,
+	[Parameter(Mandatory=$true)][string] $Datastore,
+	[Parameter(Mandatory=$true)][string] $Template,
+	[Parameter(Mandatory=$true)][string] $Location,
+	[Parameter(Mandatory=$true)][string] $ResourcePool)
 
-    try {
-        New-VM -Name $Name -ResourcePool $ResourcePool -Template $Template -Datastore $Datastore -Location $Location -ErrorAction $ErrorActionPref
-    } catch {
-        $Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewVMErrorLog -Append
-        $Name + "$FailedItem = $_.Exception.ItemName" | Out-File -FilePath $NewVMErrorLog  -Append
-        Send-ErrorEmail "VM Creation Error" $NewVMErrorLog
-    }
+
+
+	try {
+		if (-Not (Get-Folder $Location -ErrorAction $ErrorActionPref)) { New-Folder $Location -Location VM }
+
+		New-VM -Name $Name -ResourcePool $ResourcePool -Template $Template -Datastore $Datastore -Location $Location -ErrorAction $ErrorActionPref
+	} catch {
+		$Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewVMErrorLog -Append
+		$Name + "$FailedItem = $_.Exception.ItemName" | Out-File -FilePath $NewVMErrorLog  -Append
+        Send-ErrorEmail "VM Creation Error $MyDateTime" $NewVMErrorLog
+	}
 }
 
-Function Set-ScribestarNetwork ([string] $VMName = $null, [string] $Network = $null) {
+Function Set-ScribestarNetwork
+{
+	Param([Parameter(Mandatory=$true)][string] $VMName,
+	[Parameter(Mandatory=$true)][string] $Network)
 
-    if (-not($VMName)) {Write-Host "No VMName provided"; break }
-    if (-not($Network)) {Write-Host "No Network provded"; break }
-
-    try {
-        Get-VM $VMName | Get-NetworkAdapter | Set-NetWorkAdapter -NetworkName $Network -Confirm:$false -ErrorAction $ErrorActionPref
-    } catch {
-        $Network + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NetworkLabelErrorLog -Append
+	try {
+		Get-VM $VMName | GetNetworkAdapter | SetNetWorkAdapter -NetworkName $Network -Confirm:$false -ErrorAction $ErrorActionPref
+	} catch {
+		$Network + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NetworkLabelErrorLog -Append
         $Network + "$FailedItem = $_.Exception.ItemName" | Out-File -FilePath $NetworkLabelErrorLog -Append
-        Send-ErrorEmail "Network Label Error" $NetworkLabelErrorLog
-    }
+        Send-ErrorEmail "Network Label Error $MyDateTime" $NetworkLabelErrorLog
+	}
 }
 
-Function New-ScribestarHardDisk([string] $Name = $null, [string] $CapacityGB = $null, [switch] $Thick) {
-    if (-not($Name)) { Write-Host "No name provided"; break }
-    if (-not($CapacityGB)) { Write-Host "No disk capacity (GB) provided"; break }
-    
-    # default to thin disks
+Function New-ScribestarHDD
+{
+	Param([Parameter(Mandatory=$true)][string] $VMName,
+	[Parameter(Mandatory=$true)][ValidateNotNull][string] $CapacityGB,
+	[Parameter(Mandatory=$true)][switch] $Thick)
+
+	# default to thin disks
     if ($Thick) { $StorageFormat = "Thick" }
-    else { $StorageFormat = "Thin" }
+    else		{ $StorageFormat = "Thin" }
 
     try {
         New-HardDisk -VM $Name -CapacityGB $CapacityGB -StorageFormat $StorageFormat -Persistence Persistent -ErrorAction $ErrorActionPref
@@ -67,36 +74,40 @@ Function New-ScribestarHardDisk([string] $Name = $null, [string] $CapacityGB = $
         $Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewHardDiskErrorLog -Append
         $Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewHardDiskErrorLog -Append
 
-        Send-ErrorEmail "New Hard Disk Error" $NewHardDiskErrorLog
+        Send-ErrorEmail "New Hard Disk Error $MyDateTime" $NewHardDiskErrorLog
     }
 }
 
-Function Import-ScribestarRole([string] $RoleFile) {
+Function Import-ScribestarServerCSV
+{
+	Param([string] $CSVFilename)
 
-    $RoleData = Import-Csv $RoleFile -Delimiter "|" -ErrorAction $ErrorActionPref
+	$ServerSettings = Import-Csv $CSVFilename -Delimiter "|" -ErrorAction $ErrorActionPref
 
-    $RoleData
+	return $ServerSettings
 }
 
-Function Get-ScribestarRemoteDiskSetupScript([string] $Name) {
+Function Get-ScribestarRemoteHDDSetupScript
+{
+	Param([Parameter(Mandatory=$true)][string] $VMName)
 
     $ScriptText = @"
         $Computerinfo = Get-WmiObject -Class Win32_ComputerSystem
-        $Computerinfo.Rename($Name)
+        $Computerinfo.Rename($VMName)
     
         if((Get-WmiObject Win32_cdromdrive).drive -eq "D:") 
         {
             (Get-WmiObject Win32_cdromdrive).drive | ForEach-Object {$a = mountvol $_ /l;mountvol $_ /d; $a = $a.Trim();mountvol R: $a}
         
             }                  
-                $volume = Get-Volume
-                if(($volume.DriveLetter -eq "D") -and ($volume.DriveType -eq "Fixed")){Write-Host "Driver Letter All Ready Exists"}
-                else {
-                $offlinedisk = Get-Disk | Where-Object {$_.OperationalStatus -eq "Offline"}
-                Set-Disk -Number $offlinedisk.Number -IsOffline $false
-                Initialize-Disk -Number $offlinedisk.Number -PartitionStyle MBR
-                New-Partition -DiskNumber $offlinedisk.Number -AssignDriveLetter -UseMaximumSize
-                $diskvolume = Get-Volume | Where-Object {($_.FileSystem -ne "NTFS" -and $_.Size -like "0*" -and $_.DriveType -eq "Fixed")} 
+            $volume = Get-Volume
+            if(($volume.DriveLetter -eq "D") -and ($volume.DriveType -eq "Fixed")){Write-Host "Driver Letter All Ready Exists"}
+            else {
+            $offlinedisk = Get-Disk | Where-Object {$_.OperationalStatus -eq "Offline"}
+            Set-Disk -Number $offlinedisk.Number -IsOffline $false
+            Initialize-Disk -Number $offlinedisk.Number -PartitionStyle MBR
+            New-Partition -DiskNumber $offlinedisk.Number -AssignDriveLetter -UseMaximumSize
+            $diskvolume = Get-Volume | Where-Object {($_.FileSystem -ne "NTFS" -and $_.Size -like "0*" -and $_.DriveType -eq "Fixed")} 
 
             try {
                 Set-Partition -DriveLetter $diskvolume.DriveLetter -NewDriveLetter D -ErrorAction SilentlyContinue        
@@ -109,10 +120,13 @@ Function Get-ScribestarRemoteDiskSetupScript([string] $Name) {
         }
 "@
 
-    $ScriptText
+	return $ScriptText
 }
 
-Function Get-ScribestarRemoteNetworkSetupScript([string] $IPAddr, [string] $GatewayAddr) {
+
+Function Get-ScribestarRemoteNetworkSetupScript
+{
+	Param([Parameter(Mandatory=$true)][string] $IPAddr, [Parameter(Mandatory=$true)][string] $GatewayAddr)
 
     $ScriptText = @"
         $IP="$IPAddr"
@@ -131,11 +145,15 @@ Function Get-ScribestarRemoteNetworkSetupScript([string] $IPAddr, [string] $Gate
         Add-Computer -DomainName $Domain -OUPath $OUPath -Credential $cred
 "@
 
-    $ScriptText
+    return $ScriptText
 }
 
-Function Send-ErrorEmail([string] $Subject, [string] $ErrorLog) {
+Function Send-ErrorEmail
+{
+	Param([Parameter(Mandatory=$true)][string] $Subject,
+	[Parameter(Mandatory=$true)][string] $ErrorLog)
+
     Send-MailMessage -From $EmailFrom -To $EmailTo -Subject $Subject -Attachments $ErrorLog -SmtpServer $SMTPServer
 }
 
-Export-ModuleMember -Function New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarRole
+Export-ModuleMember -Function New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarServerCSV
