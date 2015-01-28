@@ -43,7 +43,7 @@ Function New-ScribestarVM
 	} catch {
 		$Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewVMErrorLog -Append
 		$Name + "$FailedItem = $_.Exception.ItemName" | Out-File -FilePath $NewVMErrorLog  -Append
-        Send-ErrorEmail "VM Creation Error $MyDateTime" $NewVMErrorLog
+        Send-ErrorEmail -Subject "VM Creation Error $MyDateTime" -ErrorLog $NewVMErrorLog
 	}
 }
 
@@ -57,7 +57,7 @@ Function Set-ScribestarNetwork
 	} catch {
 		$Network + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NetworkLabelErrorLog -Append
         $Network + "$FailedItem = $_.Exception.ItemName" | Out-File -FilePath $NetworkLabelErrorLog -Append
-        Send-ErrorEmail "Network Label Error $MyDateTime" $NetworkLabelErrorLog
+        Send-ErrorEmail -Subject "Network Label Error $MyDateTime" -ErrorLog $NetworkLabelErrorLog
 	}
 }
 
@@ -77,7 +77,7 @@ Function New-ScribestarHardDisk
         $Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewHardDiskErrorLog -Append
         $Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewHardDiskErrorLog -Append
 
-        Send-ErrorEmail "New Hard Disk Error $MyDateTime" $NewHardDiskErrorLog
+        Send-ErrorEmail -Subject "New Hard Disk Error $MyDateTime" -ErrorLog $NewHardDiskErrorLog
     }
 }
 
@@ -90,66 +90,7 @@ Function Import-ScribestarServerCSV
 	return $ServerSettings
 }
 
-Function Set-ScribestarRemoteHDDSetupScript
-{
-	Param([Parameter(Mandatory=$true)][string]$Name)
 
-    $ScriptText = @"
-        $Computerinfo = Get-WmiObject -Class Win32_ComputerSystem
-        $Computerinfo.Rename($Name)
-    
-        if((Get-WmiObject Win32_cdromdrive).drive -eq "D:") 
-        {
-            (Get-WmiObject Win32_cdromdrive).drive | ForEach-Object {$a = mountvol $_ /l;mountvol $_ /d; $a = $a.Trim();mountvol R: $a}
-        
-            }                  
-            $volume = Get-Volume
-            if(($volume.DriveLetter -eq "D") -and ($volume.DriveType -eq "Fixed")){Write-Host "Driver Letter All Ready Exists"}
-            else {
-            $offlinedisk = Get-Disk | Where-Object {$_.OperationalStatus -eq "Offline"}
-            Set-Disk -Number $offlinedisk.Number -IsOffline $false
-            Initialize-Disk -Number $offlinedisk.Number -PartitionStyle MBR
-            New-Partition -DiskNumber $offlinedisk.Number -AssignDriveLetter -UseMaximumSize
-            $diskvolume = Get-Volume | Where-Object {($_.FileSystem -ne "NTFS" -and $_.Size -like "0*" -and $_.DriveType -eq "Fixed")} 
-
-            try {
-                Set-Partition -DriveLetter $diskvolume.DriveLetter -NewDriveLetter D -ErrorAction SilentlyContinue        
-            }
-            catch {
-                    $env:COMPUTERNAME + "The requested access path is already in use."
-            }
-        
-            Format-Volume -DriveLetter D -FileSystem NTFS -Confirm:$false
-        }
-"@
-
-	return $ScriptText
-}
-
-
-Function Set-ScribestarRemoteNetworkSetupScript
-{
-	Param([Parameter(Mandatory=$true)][string] $IPAddr, [Parameter(Mandatory=$true)][string] $GatewayAddr)
-
-    $ScriptText = @"
-        $IP="$IPAddr"
-        $Prefix = "24"
-        $Gateway = "$GatewayAddr"
-        $DNS1 = "10.1.2.34"
-        $DNS2 = "10.1.2.35"
-        $Domain = "SCRIBESTAR.INTERNAL"
-        $OUPath = "OU=BETA,OU=Servers,OU=United Kingdom,OU=Resource,DC=SCRIBESTAR,DC=INTERNAL"
-        $domainuser = "SVCJOINDOMAIN"
-        $domainpassword = "7UUBDUNQHtJzVxtwtPN01" | ConvertTo-SecureString -AsPlainText -Force
-        New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress $IP -PrefixLength $Prefix -DefaultGateway $Gateway
-        Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses ($DNS1,$DNS2)
-        $cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $domainuser,$domainpassword
-        Start-Sleep -Seconds 10
-        Add-Computer -DomainName $Domain -OUPath $OUPath -Credential $cred
-"@
-
-    return $ScriptText
-}
 
 Function Send-ErrorEmail
 {
@@ -159,4 +100,4 @@ Function Send-ErrorEmail
     Send-MailMessage -From $EmailFrom -To $EmailTo -Subject $Subject -Attachments $ErrorLog -SmtpServer $SMTPServer
 }
 
-Export-ModuleMember -Function Send-ErrorEmail, New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarServerCSV, Set-ScribestarRemoteHDDSetupScript, Set-ScribestarRemoteNetworkSetupScript
+Export-ModuleMember -Function New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarServerCSV

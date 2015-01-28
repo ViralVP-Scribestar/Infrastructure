@@ -1,4 +1,4 @@
-﻿param([string]$Name,[string]$ServerConfigFile,[string]$IP,[string] $Gateway,[string]$Network);
+﻿param([string]$Name,[string]$ServerConfigFile,[string]$Network);
 
 $GuestUser = "administrator"
 $GuestPassword = "G00gle1t"
@@ -11,7 +11,7 @@ try {
 	Remove-Module Scribestar-Functions -ErrorAction SilentlyContinue
 } catch {}
 
-Import-Module "..\..\Modules\Scribestar-Functions.psm1" -ErrorAction Stop
+Import-Module ".\Scribestar-Functions.psm1" -ErrorAction Stop
 
 
 Connect-VIServer -Server VCS-PROD -User "SCRIBESTAR\SVCVMADMIN" -Password ":l07xF)x>?44q}ucR-Vs6"
@@ -51,35 +51,11 @@ if($VMExists.Name -eq $Name) {
 
     # thin by default
 
-   New-ScribestarHardDisk -VMName $Name -CapacityGB $Role.CapacityGB
+    if($Role.CapacityGB -eq "0") {Write-Host "The $Name has secondary drive" -ForegroundColor Yellow}
+    else {
+    New-ScribestarHardDisk -VMName $Name -CapacityGB $Role.CapacityGB
+    }
 
-	Write-Host "Starting VM and waiting 60s" -ForegroundColor Green
-
-    Start-VM -VM $Name
-
-    Start-Sleep -Seconds 60
-
-	Write-Host "Configuring HardDrive" -ForegroundColor Green
-
-    $DiskSetupScript = Set-ScribestarRemoteHDDSetupScript($Name)
-
-    Invoke-VMScript -VM $Name -ScriptText $DiskSetupScript -ScriptType Powershell -GuestUser $GuestUser -GuestPassword $GuestPassword -HostUser $HostUser -HostPassword $HostPassword
-
-    Write-Host "Rebooting VM and waiting 120s" -ForegroundColor Green
-
-    Restart-VMGuest -VM $Name -Confirm:$false
-
-    Start-Sleep -Seconds 120
-
-    $NetworkSetupScript = Set-ScribestarRemoteNetworkSetupScript($IP,$Gateway)
-	
-	Write-Host "Applying network settings" -ForegroundColor Green
-    
-	Invoke-VMScript -VM $Name -ScriptText $NetWorkSetupScript -ScriptType Powershell -GuestUser $GuestUser -GuestPassword $GuestPassword -HostUser $HostUser -HostPassword $HostPassword
-
-	Write-Host "Rebooting" -ForegroundColor Green	
-
-    Restart-VMGuest -VM $Name -Confirm:$false
-
-	Write-Host "Done!" -ForegroundColor Green
+Start-VM -VM $Name
+Write-Host "Done!" -ForegroundColor Green
 }
