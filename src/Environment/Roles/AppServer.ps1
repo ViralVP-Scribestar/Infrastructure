@@ -17,8 +17,7 @@ if ((Test-Admin) -eq $false)  {
 exit
 }
 
-
-$fileName = "\\NAS\Shared Resource\Infrastructure\Operations\Systems\Scripts\PowerShell\RolesXML\App_RnF.xml"
+$fileName = ".\Data\AppServer-Role.xml"
 
 If (Test-Path $fileName) {
     Import-Module Servermanager
@@ -26,14 +25,14 @@ If (Test-Path $fileName) {
 
     Write-Host -fore Green "Installing App Features and Roles"
     Import-Clixml $fileName | Add-WindowsFeature
+
+    Write-Host "Installing Firewall Rules!"
+    New-NetFirewallRule -DisplayName "App" -Direction Inbound -Protocol TCP -Action Allow -LocalPort 80, 443
 }
     Else {
         Write-Host -fore Red "Unable to find App features xml file!"
         Write-Host -fore Red "$fileName does NOT exist!"
         break;
     }
-
-Write-Host "Installing Firewall Rules!"
-New-NetFirewallRule -DisplayName "App" -Direction Inbound -Protocol TCP -Action Allow -LocalPort 80, 443
 
 Write-Host "All Done!"
