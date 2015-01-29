@@ -8,13 +8,13 @@ $hostuser = "root"
 $hostpassword = "scribestar"
 ##############################
 
-$server = "BETAWIN-WEB02"
+$server = "BETAWIN-NEO02"
 
 
       
                         $ScriptText = @'
                         $Computerinfo = Get-WmiObject -Class Win32_ComputerSystem
-                        $Computerinfo.Rename("BETAWIN-WEB02")
+                        $Computerinfo.Rename("BETAWIN-NEO02")
                                 if((Get-WmiObject Win32_cdromdrive).drive -eq "D:") 
                                 {
                                     (Get-WmiObject Win32_cdromdrive).drive | ForEach-Object {$a = mountvol $_ /l;mountvol $_ /d; $a = $a.Trim();mountvol R: $a}
@@ -52,9 +52,9 @@ Restart-VMGuest -VM $server -Confirm:$false
 Start-Sleep -Seconds 120
 
 $ScriptText = @'
-$IP="10.1.9.33"
+$IP="10.1.9.37"
 $Prefix = "24"
-$Gateway = "10.1.9.1"
+$Gateway = "10.1.0.35"
 $DNS1 = "10.1.2.34"
 $DNS2 = "10.1.2.35"
 $Domain = "SCRIBESTAR.INTERNAL"
