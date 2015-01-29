@@ -1,38 +1,25 @@
-﻿param([switch]$Elevated)
+﻿param([string]$server)
 
-Function Test-Admin {
-  $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
-  $currentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
-}
+$file = ".\Data\WebServer-Role.xml"
 
-if ((Test-Admin) -eq $false)  {
-    if ($elevated) 
-    {
-        # tried to elevate, did not work, aborting
-    } 
-    else {
-        Start-Process powershell.exe -Verb RunAs -ArgumentList ('-noprofile -noexit -file "{0}" -elevated' -f ($myinvocation.MyCommand.Definition))
-}
+#If (Test-Path $fileName) {
+    #Invoke-Command -ComputerName $server -ScriptBlock     {
+    ##    Import-Module Servermanager
+     #   Get-Command -Module Servermanager
 
-exit
-}
+        Write-Host -fore Green "Installing Web Features and Roles . $file . "
+        Install-WindowsFeature -ComputerName $server -ConfigurationFilePath $file 
 
-$fileName = ".\Data\WebServer-Role.xml"
+#        Import-Clixml $file | Add-WindowsFeature
 
-If (Test-Path $fileName) {
-    Import-Module Servermanager
-    Get-Command -Module Servermanager
-
-    Write-Host -fore Green "Installing Web Features and Roles"
-    Import-Clixml $fileName | Add-WindowsFeature
-
-    Write-Host "Installing Firewall Rules!"
-    New-NetFirewallRule -DisplayName "Web Server Rule" -Direction Inbound -Protocol TCP -Action Allow -LocalPort 80, 443
-}
-    Else {
-        Write-Host -fore Red "Unable to find Web features xml file!"
-        Write-Host -fore Red "$fileName does NOT exist!"
-        break;
-    }
+        Write-Host "Installing Firewall Rules!"
+        #New-NetFirewallRule -DisplayName "Web Server Rule" -Direction Inbound -Protocol TCP -Action Allow -LocalPort 80, 443
+    #}
+#}
+ #   Else {
+  #      Write-Host -fore Red "Unable to find Web features xml file!"
+   #     Write-Host -fore Red "$fileName does NOT exist!"
+    #    break;
+   # }
 
 Write-Host "All Done!"
