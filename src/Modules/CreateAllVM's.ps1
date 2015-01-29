@@ -1,0 +1,11 @@
+﻿.\Create-VM.ps1 -Name BETAWIN-APP01 -ServerConfigFile ..\Environment\Data\Alpha-Beta.csv
+.\Create-VM.ps1 -Name BETAWIN-APP02 -ServerConfigFile ..\Environment\Data\Alpha-Beta.csv
+.\Create-VM.ps1 -Name BETAWIN-WEB01 -ServerConfigFile ..\Environment\Data\Alpha-Beta.csv
+.\Create-VM.ps1 -Name BETAWIN-WEB02 -ServerConfigFile ..\Environment\Data\Alpha-Beta.csv
+.\Create-VM.ps1 -Name BETAWIN-MQ01 -ServerConfigFile ..\Environment\Data\Alpha-Beta.csv
+.\Create-VM.ps1 -Name BETAWIN-MQ02 -ServerConfigFile ..\Environment\Data\Alpha-Beta.csv
+.\Create-VM.ps1 -Name BETAWIN-RAVEN01 -ServerConfigFile ..\Environment\Data\Alpha-Beta.csv
+.\Create-VM.ps1 -Name BETAWIN-RAVEN02 -ServerConfigFile ..\Environment\Data\Alpha-Beta.csv
+.\Create-VM.ps1 -Name BETAWIN-NEO01 -ServerConfigFile ..\Environment\Data\Alpha-Beta.csv
+.\Create-VM.ps1 -Name BETAWIN-NEO02 -ServerConfigFile ..\Environment\Data\Alpha-Beta.csv
+.\Create-VM.ps1 -Name BETAWIN-SQL01 -ServerConfigFile ..\Environment\Data\Alpha-Beta.csv
