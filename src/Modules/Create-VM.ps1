@@ -1,10 +1,4 @@
 ﻿param([string]$Name,[string]$ServerConfigFile,[string]$Network);
-
-$GuestUser = "administrator"
-$GuestPassword = "G00gle1t"
-$HostUser = "root"
-$HostPassword = "scribestar"
-
 Add-PSSnapin VMware.VimAutomation.Core -ErrorAction SilentlyContinue
 
 try {
