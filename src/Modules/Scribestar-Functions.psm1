@@ -100,4 +100,60 @@ Function Send-ErrorEmail
     Send-MailMessage -From $EmailFrom -To $EmailTo -Subject $Subject -Attachments $ErrorLog -SmtpServer $SMTPServer
 }
 
-Export-ModuleMember -Function New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarServerCSV
+Function Test-ScribestarPort
+{
+    Param(
+        [parameter(ParameterSetName='ComputerName', Position=0)]
+        [string]$ComputerName,
+        [parameter(ParameterSetName='IP', Position=0)]
+        [System.Net.IPAddress]$IPAddress,
+        [parameter(Mandatory=$true , Position=1)]
+        [int]$Port,
+        [parameter(Mandatory=$true, Position=2)]
+        [ValidateSet("TCP", "UDP")]
+        [string]$Protocol)
+
+    $RemoteServer = If ([string]::IsNullOrEmpty($ComputerName)) {$IPAddress} 
+    
+    else {$ComputerName};
+
+    If ($Protocol -eq 'TCP')
+    {
+        $test = New-Object System.Net.Sockets.TcpClient;
+        Try
+        {
+            Write-Host "Connecting to "$RemoteServer":"$Port" (TCP)..";
+            $test.Connect($RemoteServer, $Port);
+            Write-Host "Connection successful";
+        }
+        Catch
+        {
+            Write-Host "Connection failed";
+        }
+        Finally
+        {
+            $test.Dispose();
+        }
+    }
+
+    If ($Protocol -eq 'UDP')
+    {
+        $test = New-Object System.Net.Sockets.UdpClient;
+        Try
+        {
+            Write-Host "Connecting to "$RemoteServer":"$Port" (UDP)..";
+            $test.Connect($RemoteServer, $Port);
+            Write-Host "Connection successful";
+        }
+        Catch
+        {
+            Write-Host "Connection failed";
+        }
+        Finally
+        {
+            $test.Dispose();
+        }
+    }
+}
+
+Export-ModuleMember -Function New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarServerCSV, Test-ScribestarPort
