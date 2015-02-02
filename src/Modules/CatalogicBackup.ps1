@@ -11,14 +11,25 @@ Import-Module ".\Scribestar-Functions.psm1" -ErrorAction Stop
 
 $Role = Import-ScribestarServerCSV $ServerConfigFile
 
-$ports = "6123","10000","10566"
+$Ports = "6123","10000","10566"
 
+foreach ($Port in $Ports) {
+                            try{
+                            $Status = Test-ScribestarPort -Computer $Name -Port $Port -TCP
+                            $ServerName = $Status.Server
+                            }
 
+                            catch {
+                                    "The port is not open on this $ServerName"
+                                    }
 
-foreach ($port in $ports) {
-                            $status = Test-ScribestarPort -ComputerName AD3 -Port $port -Protocol TCP
-                            if($status.Equals("Connection successful")){'blah'}
+                                    if($status.Open -eq "True") {Write-Host "Ports Are Already Open"}
+                                    
+                                    else {
+                                            New-NetFirewallRule -DisplayName "Catalogic" -Direction Inbound -Protocol TCP -Action Allow -LocalPort $Ports
+                                            }
                             
                             }
+
 
                             
