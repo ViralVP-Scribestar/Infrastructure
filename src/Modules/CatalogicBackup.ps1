@@ -9,8 +9,6 @@ try {
 
 Import-Module ".\Scribestar-Functions.psm1" -ErrorAction Stop
 
-$Role = Import-ScribestarServerCSV $ServerConfigFile
-
 $Ports = "6123","10000","10566"
 
 foreach ($Port in $Ports) {

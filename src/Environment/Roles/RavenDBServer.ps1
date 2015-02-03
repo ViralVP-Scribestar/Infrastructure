@@ -13,9 +13,6 @@ Invoke-Command -ComputerName $server -ScriptBlock     {
     Write-Host -fore Green "Installing Raven Features and Roles"
     Import-Clixml C:\roles.xml | Install-WindowsFeature -Source "Windows Update"
 
-    Write-Host "Installing Firewall Rules!"
-    New-NetFirewallRule -DisplayName "RavenDB Server Rule" -Direction Inbound -Protocol TCP -Action Allow -LocalPort 8080
-
     sleep -Seconds 10
 
     regedit /s C:\WUPol.reg
