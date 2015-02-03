@@ -13,9 +13,6 @@ Invoke-Command -ComputerName $server -ScriptBlock     {
     Write-Host -fore Green "Installing Web Features and Roles"
     Import-Clixml C:\roles.xml | Install-WindowsFeature -Source "Windows Update"
     
-    Write-Host "Installing Firewall Rules!"
-    New-NetFirewallRule -DisplayName "Web Server Rule" -Direction Inbound -Protocol TCP -Action Allow -LocalPort 80, 443
-
     sleep -Seconds 10
 
     regedit /s C:\WUPol.reg

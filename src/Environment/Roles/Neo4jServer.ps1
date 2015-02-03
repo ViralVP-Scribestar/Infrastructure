@@ -13,9 +13,6 @@ Invoke-Command -ComputerName $server -ScriptBlock     {
     Write-Host -fore Green "Installing Neo4J Features and Roles"
     Import-Clixml C:\roles.xml | Install-WindowsFeature -Source "Windows Update"
 
-    Write-Host "Installing Firewall Rules!"
-    New-NetFirewallRule -DisplayName "Neo4j Server Rule" -Direction Inbound -Protocol TCP -Action Allow -LocalPort 7474, 5001, 6001
-
     sleep -Seconds 10
 
     regedit /s C:\WUPol.reg

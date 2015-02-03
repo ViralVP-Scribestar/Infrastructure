@@ -13,9 +13,6 @@ Invoke-Command -ComputerName $server -ScriptBlock     {
     Write-Host -fore Green "Installing RabbitMQ Features and Roles"
     Import-Clixml C:\roles.xml | Install-WindowsFeature -Source "Windows Update"
 
-    Write-Host "Installing Firewall Rules!"
-    New-NetFirewallRule -DisplayName "RabbitMQ Server Rule" -Direction Inbound -Protocol TCP -Action Allow -LocalPort 5672, 15672
-
     sleep -Seconds 10
 
     regedit /s C:\WUPol.reg
