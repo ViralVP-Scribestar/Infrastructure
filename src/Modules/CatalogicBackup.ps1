@@ -9,13 +9,10 @@ try {
 
 Import-Module ".\Scribestar-Functions.psm1" -ErrorAction Stop
 
-$Role = Import-ScribestarServerCSV $ServerConfigFile
-
 $Ports = "6123","10000","10566"
-
-foreach ($Port in $Ports) {
+                            
                             try{
-                            $Status = Test-ScribestarPort -Computer $Name -Port $Port -TCP
+                            $Status = Test-ScribestarPort -Computer $Name -Port $Ports -TCP -ErrorAction SilentlyContinue
                             $ServerName = $Status.Server
                             }
 
@@ -24,12 +21,13 @@ foreach ($Port in $Ports) {
                                     }
 
                                     if($status.Open -eq "True") {Write-Host "Ports Are Already Open"}
-                                    
+
                                     else {
-                                            New-NetFirewallRule -DisplayName "Catalogic" -Direction Inbound -Protocol TCP -Action Allow -LocalPort $Ports
-                                            }
+                                    
+                                    
+                                            Invoke-Command -ComputerName $Name -ArgumentList $Ports -ScriptBlock {
+                                                                                                
+                                                                                                   New-NetFirewallRule -DisplayName "Catalogic" -Direction Inbound -Protocol TCP -Action Allow -LocalPort $Ports
+                                                                                     }
                             
                             }
-
-
-                            
