@@ -39,7 +39,7 @@ Function New-ScribestarVM
 
 
 	try {
-		New-VM -Name $Name -ResourcePool $ResourcePool -Template $Template -Datastore $Datastore -Location $Location -ErrorAction $ErrorActionPref
+		New-VM -Name ($Name).ToUpper() -ResourcePool $ResourcePool -Template $Template -Datastore $Datastore -Location $Location -ErrorAction $ErrorActionPref
 	} catch {
 		$Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewVMErrorLog -Append
 		$Name + "$FailedItem = $_.Exception.ItemName" | Out-File -FilePath $NewVMErrorLog  -Append
@@ -53,7 +53,7 @@ Function Set-ScribestarNetwork
 	[Parameter(Mandatory=$true)][string] $Network)
 
 	try {
-		Get-VM $VMName | Get-NetworkAdapter | Set-NetworkAdapter -NetworkName $Network -Confirm:$false -ErrorAction $ErrorActionPref
+		Get-VM $VMName | Get-NetworkAdapter | Set-NetworkAdapter -NetworkName ($Network).ToUpper() -Confirm:$false -ErrorAction $ErrorActionPref
 	} catch {
 		$Network + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NetworkLabelErrorLog -Append
         $Network + "$FailedItem = $_.Exception.ItemName" | Out-File -FilePath $NetworkLabelErrorLog -Append
@@ -89,7 +89,6 @@ Function Import-ScribestarServerCSV
 
 	return $ServerSettings
 }
-
 
 
 Function Send-ErrorEmail
@@ -280,4 +279,4 @@ Function Test-ScribestarPort{
     } 
 }
 
-Export-ModuleMember -Function New-ScribestarVM, Set-ScribestarNetwork, New-ScribestarHardDisk, Import-ScribestarServerCSV, Test-ScribestarPort
+Export-ModuleMember -Function New-ScribestarVM,Set-ScribestarNetwork,New-ScribestarHardDisk,Import-ScribestarServerCSV,Test-ScribestarPort
