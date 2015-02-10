@@ -25,8 +25,9 @@ $Ports = "6123","10000","10566"
                                     else {
                                     
                                     
-                                            Invoke-Command -ComputerName $Name -ArgumentList $Ports -ScriptBlock {
-                                                                                                
+                                            Invoke-Command -ComputerName $Name -ScriptBlock {
+                                                                                                       
+                                                                                                   $Ports = "6123","10000","10566"
                                                                                                    New-NetFirewallRule -DisplayName "Catalogic" -Direction Inbound -Protocol TCP -Action Allow -LocalPort $Ports
                                                                                      }
                             

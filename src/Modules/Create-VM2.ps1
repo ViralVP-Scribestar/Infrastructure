@@ -16,8 +16,17 @@ $hostuser = "root"
 $hostpassword = "scribestar"
 ##############################
 
+#Find VM Required To Create
+[string]$value = "TRUE"
+[boolean]$a = $value
+[boolean]$a = [System.Convert]::ToBoolean($value)
 
-$Role = Import-ScribestarServerCSV $ServerConfigFile
+
+$Roles = Import-ScribestarServerCSV $ServerConfigFile | Where-Object {$_.Required -eq $true}
+
+foreach ($Role in $Roles) {
+
+$Name = $Role.Name
 
 $pattern= @"
 ^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$
@@ -54,7 +63,7 @@ if($VMExists.Name -eq $Name) {
 
             until ($VMCreation.UsedSpaceGB -ne "-1")
 
-	Set-ScribestarNetwork -VMName $Name -Network $Network
+	Set-ScribestarNetwork -VMName $Name -Network $Role.Network
 
     # thin by default
 
@@ -135,7 +144,7 @@ Add-Computer -DomainName $Domain -OUPath $OUPath -Credential $cred
 
 '@
 
-$ScriptText = $ScriptText.Replace("#IPAddress#",$IPAddress).Replace("#Prefix#",$Prefix).Replace("#Gateway#",$Gateway).Replace("#OUPath#",$Role.OUPath)
+$ScriptText = $ScriptText.Replace("#IPAddress#",$Role.IPAddress).Replace("#Prefix#",$Role.Prefix).Replace("#Gateway#",$Role.Gateway).Replace("#OUPath#",$Role.OUPath)
 
 Invoke-VMScript -VM $Name -ScriptText $ScriptText -ScriptType Powershell -GuestUser $guestuser -GuestPassword $guestpassword -HostUser $hostuser -HostPassword $hostpassword
 
@@ -144,4 +153,7 @@ Write-Host "Rebooting $Name" -ForegroundColor Yellow
 Restart-VMGuest -VM $Name -Confirm:$false
 
 Write-Host "Done!" -ForegroundColor Green
+
+}
+
 }
