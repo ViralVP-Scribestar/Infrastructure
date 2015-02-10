@@ -1,2 +1,4 @@
-Resource,Folder,CapacityGB,Location,Datastore,Template,OUPath
-Resources,BETA,10,BETA,VMS-Datastore,WIN2012R2-TEMPLATE,"OU=BETA,OU=Servers,OU=United Kingdom,OU=Resource,DC=SCRIBESTAR,DC=INTERNAL"
+Name,Resource,Folder,CapacityGB,Prefix,IPAddress,Gateway,Location,Datastore,Template,OUPath,Network,Required
+BETAWIN-WEB02,Resources,BETA,10,24,,,BETA,VMS-Datastore,WIN2012R2-TEMPLATE,"OU=BETA,OU=Servers,OU=United Kingdom,OU=Resource,DC=SCRIBESTAR,DC=INTERNAL",,TRUE
+BETAWIN-SQL02,Resources,BETA,0,24,,,BETA,VMS-Datastore,SQL2012-Standard,"OU=BETA,OU=Servers,OU=United Kingdom,OU=Resource,DC=SCRIBESTAR,DC=INTERNAL",,TRUE
+BETAWIN-RAVEN02,Resources,BETA,10,24,,,BETA,VMS-Datastore,WIN2012R2-TEMPLATE,"OU=BETA,OU=Servers,OU=United Kingdom,OU=Resource,DC=SCRIBESTAR,DC=INTERNAL",,FALSE
