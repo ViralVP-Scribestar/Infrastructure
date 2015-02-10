@@ -23,11 +23,7 @@ $Ports = "6123","10000","10566"
                                     if($status.Open -eq "True") {Write-Host "Ports Are Already Open"}
 
                                     else {
-                                    
-                                    
-                                            Invoke-Command -ComputerName $Name -ArgumentList $Ports -ScriptBlock {
-                                                                                                
-                                                                                                   New-NetFirewallRule -DisplayName "Catalogic" -Direction Inbound -Protocol TCP -Action Allow -LocalPort $Ports
+                                            Invoke-Command -ComputerName $Name -ScriptBlock {
+                                                                                                   New-NetFirewallRule -DisplayName "Catalogic" -Direction Inbound -Protocol TCP -Action Allow -LocalPort 6123,10000,10566
                                                                                      }
-                            
                             }
