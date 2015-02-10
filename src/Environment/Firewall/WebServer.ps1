@@ -8,38 +8,25 @@ if(Test-Connection $server -ea 0 -Quiet) {
 
     Import-Module "..\..\Modules\Scribestar-Functions.psm1" -ErrorAction Stop
 
-    $WebPorts = "Web Ports", "80", "443"
+    $WebPorts = 80,443
 
     foreach ($Port in $WebPorts) {
-                                try { $MyPort = [int]$Port }
-                                catch {
-                                    $RuleName = $Port
-                                    Write-Host "$Port is NOT an integer" 
-                                }
-                                
-                                if($MyPort -is [int]){
-                                    try{ $Status = Test-ScribestarPort -Computer $server -Port $Port -TCP }
-                                    catch { Write-Host "CATCH!!!" }
-                                
-                                    if($Status.Open -eq "True") {Write-Host "$MyPort is already open on $server"}
+                              try{ $Status = Test-ScribestarPort -Computer $server -Port $Port -TCP }
+                                catch { }
 
-                                    else {
-                                        Write-host "Port $MyPort is not open on $server" 
-                                        Write-Host "r $RuleName displ $DisplayName p $MyPort"
-                                        Invoke-Command -ComputerName $server -ArgumentList $RuleName, $MyPort -ScriptBlock {
-                                            $DisplayName = "$RuleName TCP $MyPort"
-                                            Write-Host "r $RuleName displ $DisplayName p $MyPort"
-                                            #New-NetFirewallRule -DisplayName $DisplayName -Direction Inbound -Protocol TCP -Action Allow -LocalPort $MyPort
-                                        }#End Invoke
-                                    } #End Else $MyPort open
-
-                                } # End If $MyPort is integer
+                              if($Status.Open -eq "True") { Write-Host "$Port is already open on $server" }
+                              
+                              else {
+                                   Invoke-Command -ComputerName $server -ScriptBlock {
+                                        New-NetFirewallRule -DisplayName "Web Ports" -Direction Inbound -Protocol TCP -Action Allow -LocalPort 80,443
+                                    } #End Invoke
+                                } #End Else port is open
     } #End For Loop
-                                
+
 } # End IF Server Online
 
 else {
     Write-Host "$server is OFFLINE!"
 }                            
-   
+
 Write-Host "All Done!"
