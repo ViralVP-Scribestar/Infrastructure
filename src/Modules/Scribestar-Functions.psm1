@@ -74,10 +74,9 @@ Function New-ScribestarHardDisk
     try {
         New-HardDisk -VM $VMName -CapacityGB $CapacityGB -StorageFormat $StorageFormat -Persistence Persistent -ErrorAction $ErrorActionPref
     } catch {
-        $Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewHardDiskErrorLog -Append
-        $Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewHardDiskErrorLog -Append
-
-        Send-ErrorEmail -Subject "New Hard Disk Error $MyDateTime" -ErrorLog $NewHardDiskErrorLog
+        $Name + "$ErrorMessage = $_.Exception.Message" | Out-File -FilePath $NewVMHardDiskErrorLog -Append
+        $Name + "$FailedItem = $_.Exception.ItemName" | Out-File -FilePath $NewVMHardDiskErrorLog -Append
+        Send-ErrorEmail -Subject "New Hard Disk Error $MyDateTime" -ErrorLog $NewVMHardDiskErrorLog
     }
 }
 

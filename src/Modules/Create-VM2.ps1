@@ -1,4 +1,4 @@
-﻿param([string]$Name,[string]$ServerConfigFile,[string]$Network,[string]$IPAddress,[string]$Prefix,[string]$Gateway);
+﻿param([string]$ServerConfigFile);
 Add-PSSnapin VMware.VimAutomation.Core -ErrorAction SilentlyContinue
 
 try {
@@ -63,7 +63,7 @@ if($VMExists.Name -eq $Name) {
 
     # thin by default
 
-    if($Role.CapacityGB -eq "0") {Write-Host "The $Name has secondary drive" -ForegroundColor Yellow}
+    if($Role.CapacityGB -eq "0") {Write-Host "The $Name Has Secondary Drive" -ForegroundColor Yellow}
     else {
     New-ScribestarHardDisk -VMName $Name -CapacityGB $Role.CapacityGB
     }
@@ -80,7 +80,7 @@ Write-Host "Renaming Server & Configuring Hard Disk" -ForegroundColor Yellow
 
 $ScriptText = @'
                         $Computerinfo = Get-WmiObject -Class Win32_ComputerSystem
-                        $Computerinfo.Rename("Name")
+                        $Computerinfo.Rename("#Name#")
                                 if((Get-WmiObject Win32_cdromdrive).drive -eq "D:") 
                                 {
                                     (Get-WmiObject Win32_cdromdrive).drive | ForEach-Object {$a = mountvol $_ /l;mountvol $_ /d; $a = $a.Trim();mountvol R: $a}
@@ -110,7 +110,7 @@ $ScriptText = @'
 
                                                         }
 '@
-$ScriptText = $ScriptText.Replace("Name",($Name).ToUpper())
+$ScriptText = $ScriptText.Replace("#Name#",($Name).ToUpper())
 
 Invoke-VMScript -VM $Name -ScriptText $ScriptText -ScriptType Powershell -GuestUser $guestuser -GuestPassword $guestpassword -HostUser $hostuser -HostPassword $hostpassword
 
@@ -126,8 +126,8 @@ $ScriptText = @'
 $IP= ("#IPAddress#")
 $Prefix = ("#Prefix#")
 $Gateway = ("#Gateway#")
-$DNS1 = "10.1.2.34"
-$DNS2 = "10.1.2.35"
+$DNS1 = ("#DNS1#")
+$DNS2 = ("#DNS2#")
 $Domain = "SCRIBESTAR.INTERNAL"
 $OUPath = ("#OUPath#")
 $domainuser = "SVCJOINDOMAIN"
@@ -140,7 +140,7 @@ Add-Computer -DomainName $Domain -OUPath $OUPath -Credential $cred
 
 '@
 
-$ScriptText = $ScriptText.Replace("#IPAddress#",$Role.IPAddress).Replace("#Prefix#",$Role.Prefix).Replace("#Gateway#",$Role.Gateway).Replace("#OUPath#",$Role.OUPath)
+$ScriptText = $ScriptText.Replace("#IPAddress#",$Role.IPAddress).Replace("#Prefix#",$Role.Prefix).Replace("#Gateway#",$Role.Gateway).Replace("#DNS1#",$Role.DNS1).Replace("#DNS2#",$Role.DNS2).Replace("#OUPath#",$Role.OUPath)
 
 Invoke-VMScript -VM $Name -ScriptText $ScriptText -ScriptType Powershell -GuestUser $guestuser -GuestPassword $guestpassword -HostUser $hostuser -HostPassword $hostpassword
 
